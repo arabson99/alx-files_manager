@@ -17,20 +17,12 @@ class DBClient {
       useUnifiedTopology: true,
     });
 
-    this.db = null;
-
-    this.client.connect()
-      .then(() => {
-        this.db = this.client.db(database);
-      })
-      .catch((err) => {
-        console.error(err);
-        this.db = null;
-      });
+    this.client.connect();
+    this.db = this.client.db(database);
   }
 
   isAlive() {
-    return this.db !== null;
+    return this.client.topology.isConnected();
   }
 
   async nbUsers() {
