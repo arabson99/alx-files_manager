@@ -7,9 +7,9 @@ class AppController {
       const redis = redisClient.isAlive();
       const db = dbClient.isAlive();
 
-      return response.status(200).json({ redis, db });
+      response.status(200).json({ redis, db });
     } catch (error) {
-      return response.status(500).json({ error });
+      response.status(500).json({ error });
     }
   }
 
@@ -18,9 +18,9 @@ class AppController {
       const users = await dbClient.nbUsers();
       const files = await dbClient.nbFiles();
 
-      return response.status(200).json({ users, files });
+      response.status(200).json({ users, files });
     } catch (error) {
-      return response.status(500).json({ error });
+      response.status(500).json({ error });
     }
   }
 }
