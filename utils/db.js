@@ -20,13 +20,13 @@ class DBClient {
     this.db = null;
 
     this.client.connect()
-        .then(() => {
-            this.db = this.client.db(database);
-        })
-        .catch ((err) => {
-            console.error(err);
-            this.db = null;
-        });
+      .then(() => {
+        this.db = this.client.db(database);
+      })
+      .catch((err) => {
+        console.error(err);
+        this.db = null;
+      });
   }
 
   isAlive() {
