@@ -56,5 +56,6 @@ class DBClient {
   }
 }
 
+
 const dbClient = new DBClient();
 export default dbClient;
