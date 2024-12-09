@@ -8,7 +8,9 @@ class UsersController {
     try {
       const { email, password } = request.body;
 
-      if (!email) return response.status(400).json({ error: 'Missing email' });
+      if (!email) {
+        return response.status(400).json({ error: 'Missing email' });
+      }
       if (!password) return response.status(400).json({ error: 'Missing password' });
 
       const existingUser = await dbClient.db.collection('users').findOne({ email });
@@ -31,15 +33,17 @@ class UsersController {
   static async getMe(request, response) {
     const token = request.header('X-Token');
 
-    if (!token) return response.status(401).json({ error: 'Unauthorized' });
-
+    if (!token) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
     const key = `auth_${token}`;
     const userId = await redisClient.get(key);
 
     const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
 
-    if (!user) return response.status(401).json({ error: 'Unauthorized' });
-
+    if (!user) {
+      return response.status(401).json({ error: 'Unauthorized' });
+    }
     return response.status(200).json({ id: user._id.toString(), email: user.email });
   }
 }
