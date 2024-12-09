@@ -13,7 +13,12 @@ class AuthController {
 
     const base64Credentials = authHeader.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('utf-8');
-    const [email, password] = credentials.split(':');
+    // Find the first colon and split accordingly
+    const colonIndex = credentials.indexOf(':');
+    if (colonIndex === -1) throw new Error('Invalid credentials format');
+
+    const email = credentials.slice(0, colonIndex);
+    const password = credentials.slice(colonIndex + 1);
 
     if (!email || !password) {
       return response.status(401).json(({ error: 'Unauthorized' }));
