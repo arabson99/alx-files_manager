@@ -30,9 +30,13 @@ class FilesController {
     }
     if (parentId) {
       const file = await dbClient.db.collection('files').findOne({ _id: ObjectId(parentId), userId });
-      if (!file) return response.status(400).json({ error: 'Parent not found' });
-      if (file && file.type !== 'folder') return response.status(400).json({ error: 'Parent is not a folder' });
+      if (!file) {
+        return response.status(400).json({ error: 'Parent not found' });
+      } if (file && file.type !== 'folder') {
+        return response.status(400).json({ error: 'Parent is not a folder' });
+      }
     }
+
     const fileData = {
       userId,
       name,
