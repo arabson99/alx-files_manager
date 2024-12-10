@@ -87,7 +87,7 @@ class FilesController {
         userId: ObjectId(userId),
       });
       if (file) return response.status(200).json(file);
-      return response.status(404).json({ error: 'Not found' });
+      else return response.status(404).json({ error: 'Not found' });
     } catch (err) {
       return response.status(500).json({ error: 'Internal server error' });
     }
