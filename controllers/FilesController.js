@@ -111,8 +111,8 @@ class FilesController {
       return response.status(401).json({ error: 'Unauthorized' });
     }
 
-    const parentId = request.query.parentId;
-    const page = request.query.page || 0;
+    const { parentId } = request.query;
+    const page = parseInt(request.query.page, 10) || 0;
     let filter;
 
     if (parentId) {
@@ -124,7 +124,7 @@ class FilesController {
     const fileCollection = await dbClient.db.collection('files');
     const result = fileCollection.aggregate([
       { $match: filter },
-      { $skip: parseInt(page) * 20 },
+      { $skip: page * 20 },
       { $limit: 20 },
     ]);
     const resultArray = await result.toArray();

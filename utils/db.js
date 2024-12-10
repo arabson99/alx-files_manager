@@ -22,8 +22,8 @@ class DBClient {
   }
 
   isAlive() {
-    return this.client && this.client.topology && this.client.topology.isConnected() || false;
-  }  
+    return (this.client && this.client.topology && this.client.topology.isConnected()) || false;
+  }
 
   async nbUsers() {
     try {
@@ -47,7 +47,6 @@ class DBClient {
     }
   }
 }
-
 
 const dbClient = new DBClient();
 export default dbClient;
