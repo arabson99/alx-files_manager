@@ -3,10 +3,9 @@ import redisClient from '../utils/redis';
 
 class AppController {
   static async getStatus(request, response) {
-    await response.status(200).json({
-      redis: redisClient.isAlive(),
-      db: dbClient.isAlive(),
-    });
+    const redis = await redisClient.isAlive();
+    const db = await dbClient.isAlive();
+    return response.status(200).json({ redis, db });
   }
 
   static async getStats(request, response) {
