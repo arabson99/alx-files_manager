@@ -21,16 +21,9 @@ class DBClient {
     this.db = this.client.db(database);
   }
 
-  async isAlive() {
-    try {
-      const result = await this.db.command({ ping: 1 });
-      return result.ok === 1;
-    } catch (err) {
-      console.error('MongoDB is not reachable:', err);
-      return false;
-    }
-  }
-  
+  isAlive() {
+    return this.client && this.client.topology && this.client.topology.isConnected() || false;
+  }  
 
   async nbUsers() {
     try {
@@ -54,6 +47,7 @@ class DBClient {
     }
   }
 }
+
 
 const dbClient = new DBClient();
 export default dbClient;

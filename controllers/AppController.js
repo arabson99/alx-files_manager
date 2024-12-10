@@ -2,9 +2,9 @@ import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 
 class AppController {
-  static async getStatus(request, response) {
-    const redis = await redisClient.isAlive();
-    const db = await dbClient.isAlive();
+  static getStatus(request, response) {
+    const redis = redisClient.isAlive();
+    const db = dbClient.isAlive();
     return response.status(200).json({ redis, db });
   }
 
