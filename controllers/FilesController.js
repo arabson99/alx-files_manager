@@ -116,7 +116,7 @@ class FilesController {
     let filter;
 
     if (parentId) {
-      filter = { _id: ObjectId(parentId), userId: ObjectId(userId) };
+      filter = { parentId: ObjectId(parentId), userId: ObjectId(userId) };
     } else {
       filter = { userId: ObjectId(userId) };
     }
