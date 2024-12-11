@@ -1,4 +1,5 @@
 import fs from 'fs';
+import Bull from 'bull';
 import { v4 as uuidv4 } from 'uuid';
 import { ObjectId } from 'mongodb';
 import mime from 'mime-types';
@@ -7,6 +8,7 @@ import dbClient from '../utils/db';
 
 class FilesController {
   static async postUpload(request, response) {
+    const queue = new Bull('fileQueue');
     const token = request.header('X-Token');
     if (!token) return response.status(401).json({ error: 'Unauthorized' });
 
@@ -61,6 +63,19 @@ class FilesController {
     });
     const newFile = await dbClient.db.collection('files').insertOne({ ...fileData, localPath });
 
+    if (type === 'image') {
+      console.log();
+      queue.add({ userId: ObjectId(userId), fileId: ObjectId(newFile.insertedId) })
+        .then(() => {
+          console.log('Job successfully added to the queue');
+        })
+        .catch((err) => {
+          console.error('Error adding job to the queue:', err);
+        });
+      queue.on('active', (job) => {
+        console.log(`Job ${job.id} is now activw`);
+      });
+    }
     return response.status(201).json({ id: newFile.insertedId, ...fileData });
   }
 
@@ -128,6 +143,12 @@ class FilesController {
       { $match: filter },
       { $skip: page * 20 },
       { $limit: 20 },
+      {
+        // specifies parts to display and hide, 0=exclude, 1=include
+        $project: {
+          id: '$_id', _id: 0, userId: 1, name: 1, type: 1, isPublic: 1, parentId: 1,
+        },
+      },
     ]);
     const resultArray = await result.toArray();
     return response.status(200).json(resultArray);
@@ -191,11 +212,11 @@ class FilesController {
     if (file.type === 'folder') {
       return response.status(400).json({ error: "A folder doesn't have content" });
     }
-    const token = request.header('X-Token');
-    const key = `auth_${token}`;
-    if (!file.isPublic) {
-      if (!token) return response.status(404).json({ error: 'Not found' });
 
+    if (!file.isPublic) {
+      const token = request.header('X-Token');
+      if (!token) return response.status(404).json({ error: 'Not found' });
+      const key = `auth_${token}`;
       const userId = await redisClient.get(key);
       if (!userId) return response.status(401).json({ error: 'Unauthorized' });
       const user = await dbClient.db.collection('users').findOne({ _id: ObjectId(userId) });
@@ -203,7 +224,9 @@ class FilesController {
         return response.status(404).json({ error: 'Not found' });
       }
     }
-    const fileLocalPath = file.localPath;
+    const size = request.query.size || 0;
+    const fileLocalPath = size === 0 ? file.localPath : `${file.localPath}_${size}`;
+
     if (!fs.existsSync(fileLocalPath)) return response.status(404).json({ error: 'Not found' });
     const data = await fs.promises.readFile(fileLocalPath);
     const headerContentType = mime.contentType(file.name);
